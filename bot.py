@@ -1,10 +1,18 @@
 import os
 import random
+
+import nltk
 import requests
 from moviepy import TextClip, CompositeVideoClip
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.audio.AudioClip import CompositeAudioClip
+from nltk import word_tokenize, pos_tag
+from nltk.corpus import stopwords
+
+nltk.download('punkt_tab')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger_eng')
 
 
 class FactVideoGenerator:
@@ -21,6 +29,27 @@ class FactVideoGenerator:
         """Returns the longest word in the given text."""
         words = text.split()
         return max(words, key=len)
+
+    def get_relevant_word(self, text):
+        """Returns the most relevant word based on part-of-speech tagging and filtering out stopwords."""
+        # Tokenize the text into words
+        words = word_tokenize(text)
+
+        # Remove stop words (common words like 'the', 'is', etc.)
+        stop_words = set(stopwords.words('english'))
+        filtered_words = [word for word in words if word.lower() not in stop_words]
+
+        # Get part-of-speech tags
+        tagged_words = pos_tag(filtered_words)
+
+        # Filter for nouns (NN, NNP, etc.), which are typically the most meaningful for video search
+        nouns = [word for word, tag in tagged_words if tag in ('NN', 'NNS', 'NNP', 'NNPS')]
+
+        # Return the first noun (or best choice) from the filtered list
+        if nouns:
+            return nouns[0]  # You can also return the most frequent noun if needed
+        else:
+            return filtered_words[0]
 
     def get_random_video(self, search_query):
         """Fetches a random video based on the search query from a legal source."""
@@ -44,7 +73,7 @@ class FactVideoGenerator:
     def synthesize_voice(text, output_path="voice.mp3"):
         """Synthesizes text into speech using a TTS API."""
         from gtts import gTTS
-        tts = gTTS(text)
+        tts = gTTS(text, lang='en', slow=False, tld='com')
         tts.save(output_path)
         return output_path
 
@@ -60,7 +89,7 @@ class FactVideoGenerator:
     @staticmethod
     def create_video(fact_text, video_path, voice_path, music_path):
         """Combines the video, voice, and music into a final output."""
-        output_name = f"{fact_text.replace(' ', '_').lower()}.mp4"
+        output_name = f"{'_'.join(fact_text.split(' ')[:8]).lower()}.mp4"
         output_path = os.path.join("output_videos", output_name)
         os.makedirs("output_videos", exist_ok=True)
 
@@ -76,9 +105,16 @@ class FactVideoGenerator:
             if music_clip is None:
                 raise ValueError("music_clip is None")
 
-            music_clip = music_clip.with_volume_scaled(0.05)
+            target_width, target_height = 1080, 1920
+            video_clip = video_clip.resized(height=target_height)
+
+            # If the resized width is greater than the target, crop it from the center
+            if video_clip.size[0] > target_width:  # video_clip.size[0] is the width
+                excess_width = (video_clip.size[0] - target_width) / 2
+                video_clip = video_clip.cropped(x1=excess_width, x2=excess_width + target_width)
+
             voice_clip = voice_clip.with_volume_scaled(1.0)
-            music_clip = music_clip.subclipped(0, voice_clip.duration)
+            music_clip = music_clip.with_volume_scaled(0.08).subclipped(0, voice_clip.duration)
             final_audio = CompositeAudioClip([voice_clip, music_clip])
 
             if final_audio is None:
@@ -90,7 +126,7 @@ class FactVideoGenerator:
                 text_clip = TextClip(
                     "HussarBoldWebEdition-xq5O",
                     text=fact_text,
-                    font_size=50,
+                    font_size=98,
                     color='white',
                     size=video_clip.size,
                     method='caption',
@@ -106,7 +142,8 @@ class FactVideoGenerator:
                 if final_video is None:
                     raise ValueError("Failed to create CompositeVideoClip.")
 
-                final_video.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=24)
+                final_video.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=30, preset="slow",
+                                            bitrate="4000k")
                 return output_path
             except Exception as e:
                 print(f"Error in text overlay or final video creation: {e}")
@@ -118,26 +155,8 @@ class FactVideoGenerator:
 
 if __name__ == "__main__":
     FACTS = [
-        "About 20% of small businesses fail within their first year, and around 50% fail within five years.",
-        "Lack of market need is the top reason startups fail, accounting for 42% of failures.",
-        "Companies that track key performance indicators (KPIs) are 50% more likely to achieve their goals.",
-        "Poor cash flow management causes 82% of business failures.",
-        "Customer retention is five times cheaper than acquiring new customers.",
-        "Automating repetitive tasks can increase productivity by up to 40%.",
-        "Businesses that implement data-driven decision-making are 23 times more likely to acquire customers.",
-        "70% of digital transformation initiatives fail due to lack of user adoption and poor strategy.",
-        "Inefficient processes cost companies 20-30% of their annual revenue.",
-        "Businesses that use CRM software experience an average sales increase of 29%.",
-        "79% of customers will switch brands due to poor customer service.",
-        "Failure to adapt to market changes is a leading reason why established businesses decline.",
-        "80% of businesses that focus on employee engagement see improved performance and retention.",
-        "A clear value proposition can improve conversion rates by up to 90%.",
-        "Only 50% of businesses have a documented marketing strategy, despite its proven benefits.",
-        "Scaling too quickly can lead to resource mismanagement and financial strain.",
-        "Leveraging artificial intelligence in operations can reduce costs by up to 20%.",
-        "Small businesses that use social media marketing grow their revenue 2.3 times faster than those that don't.",
-        "Over 60% of businesses that fail lack a clear business plan and defined objectives.",
-        "Companies that invest in training and development programs see a 24% increase in profits."
+        "Africa is a country.",
+        # "identical twins don’t have the same fingerprints. You can’t blame your crimes on your twin, after all. This is because environmental factors during development in the womb (umbilical cord length, position in the womb, and the rate of finger growth) impact your fingerprint.",
     ]
 
     VIDEO_API_KEY = os.getenv('VIDEO_API_KEY')
@@ -146,10 +165,10 @@ if __name__ == "__main__":
     generator = FactVideoGenerator(FACTS, VIDEO_API_KEY, MUSIC_FOLDER)
 
     try:
-        fact = 'Did you know, that ' + generator.get_random_fact()
+        fact = 'Did you know that ' + generator.get_random_fact()
         print(f"Selected Fact: {fact}")
 
-        longest_word = generator.get_longest_word(fact)
+        longest_word = generator.get_relevant_word(fact)
         print(f"Longest Word: {longest_word}")
 
         video_path = generator.get_random_video(longest_word)

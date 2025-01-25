@@ -2,3 +2,9 @@
 .venv/
 __pycache__/
 *.pyc
+output_videos/
+fonts/
+music/
+voice.mp3
+temp_video.mp4
+.env

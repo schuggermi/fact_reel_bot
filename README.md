@@ -1,4 +1,4 @@
-# Fact Reel Bot - Generate Instagram Facts Reels in seconds.
+# Fact Reel Bot - Generate Instagram Fact Reels in seconds.
 
 ![example__did_you_know_that_python_is_an_awesome-ezgif.com-video-to-gif-converter.gif](images/example__did_you_know_that_python_is_an_awesome-ezgif.com-video-to-gif-converter.gif)
 

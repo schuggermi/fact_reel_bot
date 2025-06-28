@@ -11,9 +11,13 @@ cffi==1.17.1
 charset-normalizer==3.4.2
     # via requests
 click==8.2.1
-    # via nltk
+    # via
+    #   gtts
+    #   nltk
 decorator==5.2.1
     # via moviepy
+gtts==2.2.4
+    # via -r requirements.in
 idna==3.10
     # via requests
 imageio==2.37.0
@@ -47,7 +51,10 @@ regex==2024.11.6
 requests==2.32.4
     # via
     #   -r requirements.in
+    #   gtts
     #   vosk
+six==1.17.0
+    # via gtts
 srt==3.5.3
     # via vosk
 tqdm==4.67.1

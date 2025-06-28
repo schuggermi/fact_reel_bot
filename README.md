@@ -8,6 +8,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
+wget https://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip
+sudo apt-get install unzip
+unzip vosk-model-en-us-0.22.zip
+mv vosk-model-en-us-0.22/ vosk-model/
+
 mv .env.example .env
 vim .env
 ```

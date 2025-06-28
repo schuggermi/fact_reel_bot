@@ -42,6 +42,38 @@ def synthesize_voice(text, output_path="voice.mp3"):
     return output_path
 
 
+def get_word_timings(audio_path, transcript_text):
+    """Extracts word timings using Vosk speech recognition."""
+
+    wf = wave.open(audio_path, "rb")
+    model = Model("vosk-model")
+    recognizer = KaldiRecognizer(model, wf.getframerate())
+    recognizer.SetWords(True)  # Enable word-level timestamps
+
+    results = []
+
+    while True:
+        data = wf.readframes(4000)
+        if len(data) == 0:
+            break  # Stop if no more data
+
+        if recognizer.AcceptWaveform(data):
+            result = json.loads(recognizer.Result())
+            results.append(result)
+
+        # Process final result
+    final_result = json.loads(recognizer.FinalResult())
+    results.append(final_result)
+
+    word_timings = []
+    for res in results:
+        if "result" in res:  # Check if timestamps exist
+            for word in res["result"]:
+                word_timings.append((word["word"], word["start"], word["end"]))
+
+    return word_timings
+
+
 class FactVideoGenerator:
     def __init__(self, facts_file, video_api_key, music_folder, video_cache_dir="cached_videos"):
         self.facts = load_facts(facts_file)
@@ -189,7 +221,7 @@ class FactVideoGenerator:
             video_clip = concatenate_videoclips(looped_clips).with_duration(voice_clip.duration)
 
             # Extract precise word timings
-            word_timings = self.get_word_timings(
+            word_timings = get_word_timings(
                 self.convert_audio_to_wav(new_voice_path),
                 new_fact_text,
             )
@@ -275,37 +307,6 @@ class FactVideoGenerator:
         sound.export(wav_path, format="wav")
         self.wait_for_file(wav_path)
         return wav_path
-
-    def get_word_timings(self, audio_path, transcript_text):
-        """Extracts word timings using Vosk speech recognition."""
-
-        wf = wave.open(audio_path, "rb")
-        model = Model("vosk-model-en-us-0.22")
-        recognizer = KaldiRecognizer(model, wf.getframerate())
-        recognizer.SetWords(True)  # Enable word-level timestamps
-
-        results = []
-
-        while True:
-            data = wf.readframes(4000)
-            if len(data) == 0:
-                break  # Stop if no more data
-
-            if recognizer.AcceptWaveform(data):
-                result = json.loads(recognizer.Result())
-                results.append(result)
-
-            # Process final result
-        final_result = json.loads(recognizer.FinalResult())
-        results.append(final_result)
-
-        word_timings = []
-        for res in results:
-            if "result" in res:  # Check if timestamps exist
-                for word in res["result"]:
-                    word_timings.append((word["word"], word["start"], word["end"]))
-
-        return word_timings
 
 
 if __name__ == "__main__":

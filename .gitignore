@@ -7,3 +7,5 @@ music/
 voice.mp3
 temp_video.mp4
 .env
+vosk**/
+**.zip

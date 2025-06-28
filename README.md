@@ -23,10 +23,7 @@ vim .env
 VIDEO_API_KEY=# Replace with API Key from https://www.pexels.com/api/
 ```
 
-
-## How to use it:
-
-### Requirements:
+## Requirements:
 - Music folder (`music/`)  
 Example:
 ![img.png](images/img.png)
@@ -37,7 +34,16 @@ Python is an awesome programming language!
 Using this bot makes a lot of fun!
 ```
 
-### Generate a fact Reel:
+### How to use it:
 ```shell
 python3 bot.py
+```
+
+### Note:
+If the program ends with the word `Killed` then your free memory space is too low.
+To fix this, consider unsing the smaller vosk-model:  
+```shell
+wget https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+unzip vosk-model-small-en-us-0.15.zip
+mv vosk-model-small-en-us-0.15/ vosk-model/
 ```

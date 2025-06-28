@@ -6,6 +6,8 @@
 #
 certifi==2025.6.15
     # via requests
+cffi==1.17.1
+    # via vosk
 charset-normalizer==3.4.2
     # via requests
 click==8.2.1
@@ -34,6 +36,8 @@ pillow==11.2.1
     #   moviepy
 proglog==0.1.12
     # via moviepy
+pycparser==2.22
+    # via cffi
 pydub==0.25.1
     # via -r requirements.in
 python-dotenv==1.1.1
@@ -41,10 +45,19 @@ python-dotenv==1.1.1
 regex==2024.11.6
     # via nltk
 requests==2.32.4
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   vosk
+srt==3.5.3
+    # via vosk
 tqdm==4.67.1
     # via
     #   nltk
     #   proglog
+    #   vosk
 urllib3==2.5.0
     # via requests
+vosk==0.3.45
+    # via -r requirements.in
+websockets==15.0.1
+    # via vosk

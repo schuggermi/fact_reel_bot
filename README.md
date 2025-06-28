@@ -5,7 +5,16 @@
 python3 -m pip venv .venv
 source ./venv/bin/activate
 pip install -r requirements.txt
+
+mv .env.example .env
 ```
+
+- Create a Pexels API Account at: https://www.pexels.com/api/  
+- Insert your Pexels API Key into the `.env` file:
+```dotenv
+VIDEO_API_KEY=# Replace with API Key from https://www.pexels.com/api/
+```
+
 
 ## How to use it:
 

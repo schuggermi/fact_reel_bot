@@ -296,6 +296,8 @@ class FactVideoGenerator:
             return output_path
 
         except Exception as e:
+            import tracebacks
+            traceback.print_exc()
             print(f"Error creating video: {e}")
             return None
 

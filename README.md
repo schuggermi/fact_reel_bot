@@ -9,6 +9,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 mv .env.example .env
+vim .env
 ```
 
 - Create a Pexels API Account at: https://www.pexels.com/api/  

@@ -25,10 +25,10 @@ VIDEO_API_KEY=# Replace with API Key from https://www.pexels.com/api/
 
 ## Requirements:
 - Music folder (`music/`)  
-Example:
+Example:  
 ![img.png](images/img.png)
 - Fact file (`facts.txt`)  
-Example:
+Example:  
 ```text
 Python is an awesome programming language!
 Using this bot makes a lot of fun!
